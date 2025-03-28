@@ -1,3 +1,4 @@
+import datetime
 class Medicamento:
     def __init__(self):
         self.__nombre = "" 
@@ -48,10 +49,20 @@ class Mascota:
         self.__fecha_ingreso=f
     def asignarLista_Medicamentos(self,n):
         self.__lista_medicamentos = n 
-    
+    #Éste método busca en cada dato de la lista de medicamentos y si no encuentra una igual
+    #Retorna True. Es decir: Si se repite->False , Si no se repite->True
+    def comprobar_Medicamentos(self, med):
+        for Medicamento in self.__lista_medicamentos:
+            if med==Medicamento:
+                return False
+        return True
 class sistemaV:
     def __init__(self):
         self.__lista_mascotas = []
+    def __init__(self):
+        self.__Diccionario_Canes = {}
+    def __init__(self):
+        self.__Diccionario_Felinos = {}
     
     def verificarExiste(self,historia):
         for m in self.__lista_mascotas:
@@ -87,6 +98,27 @@ class sistemaV:
                 self.__lista_mascotas.remove(masc)  #opcion con el pop
                 return True  #eliminado con exito
         return False 
+    
+        #Aquí se aprovecha del módulo datetime para facilitar el ingreso de fechas
+    #si está bien escrito->True, si no->False
+    def comprobar_Fecha(self, f:str):
+        comp= f.split("/", 2)
+        day=int(comp[0])
+        month=int(comp[1])
+        year=int(comp[2])
+        try:
+            datetime.datetime(year, month, day)
+            return True
+        except: return False
+        
+    #En este caso sí que returna un obj date
+    def Fecha_deveris(self, f:str):
+        comp= f.split("/", 2)
+        day=int(comp[0])
+        month=int(comp[1])
+        year=int(comp[2])
+        fecha= datetime.datetime(year, month, day)
+        return fecha
 
 def main():
     servicio_hospitalario = sistemaV()
@@ -110,24 +142,35 @@ def main():
                 nombre=input("Ingrese el nombre de la mascota: ")
                 tipo=input("Ingrese el tipo de mascota (felino o canino): ")
                 peso=int(input("Ingrese el peso de la mascota: "))
-                fecha=input("Ingrese la fecha de ingreso (dia/mes/año): ")
+                while True: #comprobar que la fecha esté bien
+                    fecha=input("Ingrese la fecha de ingreso (dia/mes/año): ")
+                    if servicio_hospitalario.comprobar_Fecha(fecha)==True:
+                        break
+                    else:
+                        print("ingrese una fecha válida")
+                        pass
                 nm=int(input("Ingrese cantidad de medicamentos: "))
                 lista_med=[]
-
-                for i in range(0,nm):
-                    nombre_medicamentos = input("Ingrese el nombre del medicamento: ")
-                    dosis =int(input("Ingrese la dosis: "))
-                    medicamento = Medicamento()
-                    medicamento.asignarNombre(nombre_medicamentos)
-                    medicamento.asignarDosis(dosis)
-                    lista_med.append(medicamento)
 
                 mas= Mascota()
                 mas.asignarNombre(nombre)
                 mas.asignarHistoria(historia)
                 mas.asignarPeso(peso)
                 mas.asignarTipo(tipo)
-                mas.asignarFecha(fecha)
+                mas.asignarFecha(servicio_hospitalario.Fecha_deveris(fecha))
+
+                for i in range(0,nm):
+                    while True: #Ciclo con el objetivo de repetir el ingreso de med en caso de
+                                #que ya hubiera en la lista
+                        nombre_medicamentos = input("Ingrese el nombre del medicamento: ")
+                        dosis =int(input("Ingrese la dosis: "))
+                        medicamento = Medicamento()
+                        medicamento.asignarNombre(nombre_medicamentos)
+                        medicamento.asignarDosis(dosis)
+                        if mas.comprobar_Medicamentos(medicamento)==True:
+                            lista_med.append(medicamento)
+                        else:
+                            print("Ese medicamento ya fue añadido")
                 mas.asignarLista_Medicamentos(lista_med)
                 servicio_hospitalario.ingresarMascota(mas)
 
