@@ -49,20 +49,26 @@ class Mascota:
         self.__fecha_ingreso=f
     def asignarLista_Medicamentos(self,n):
         self.__lista_medicamentos = n 
-    #Éste método busca en cada dato de la lista de medicamentos y si no encuentra una igual
+    #Éste método busca en cada dato de la lista que se le da y si no encuentra una igual
     #Retorna True. Es decir: Si se repite->False , Si no se repite->True
-    def comprobar_Medicamentos(self, med):
-        for Medicamento in self.__lista_medicamentos:
-            if med==Medicamento:
-                return False
-        return True
+    #Tuve que jugar con contadores pues utilizar una ruta de booleanos "lógica" no funcionó. Enjoy the chaos
+    def comprobar_Medicamentos(self, med:Medicamento, lista:list):
+        i=0
+        for medicamento in lista:
+            medicamento:Medicamento
+            nomb_medicamento=medicamento.verNombre
+            nomb_med=med.verNombre
+            if nomb_medicamento==nomb_med:
+                i=i+1
+        if i>0:
+            return False
+        else:
+            return True
 class sistemaV:
     def __init__(self):
         self.__lista_mascotas = []
-    def __init__(self):
-        self.__Diccionario_Canes = {}
-    def __init__(self):
-        self.__Diccionario_Felinos = {}
+        self.__diccionario_Canes = {}
+        self.__diccionario_Felinos = {}
     
     def verificarExiste(self,historia):
         for m in self.__lista_mascotas:
@@ -100,13 +106,13 @@ class sistemaV:
         return False 
     
         #Aquí se aprovecha del módulo datetime para facilitar el ingreso de fechas
-    #si está bien escrito->True, si no->False
+        #si está bien escrito->True, si no->False
     def comprobar_Fecha(self, f:str):
-        comp= f.split("/", 2)
-        day=int(comp[0])
-        month=int(comp[1])
-        year=int(comp[2])
         try:
+            comp= f.split("/", 2)
+            day=int(comp[0])
+            month=int(comp[1])
+            year=int(comp[2])
             datetime.datetime(year, month, day)
             return True
         except: return False
@@ -136,7 +142,11 @@ def main():
             if servicio_hospitalario.verNumeroMascotas() >= 10:
                 print("No hay espacio ...") 
                 continue
-            historia=int(input("Ingrese la historia clínica de la mascota: "))
+            while True:
+                try: #asegurar que la historia sea un int
+                    historia=int(input("Ingrese la historia clínica de la mascota: "))
+                    break
+                except: print("Ingrese números enteros")
             #   verificacion=servicio_hospitalario.verDatosPaciente(historia)
             if servicio_hospitalario.verificarExiste(historia) == False:
                 nombre=input("Ingrese el nombre de la mascota: ")
@@ -149,33 +159,34 @@ def main():
                     else:
                         print("ingrese una fecha válida")
                         pass
+                
+                #Aquí empieza el PERRO DE AÑADIR MEDICINAS AAHHHHHHHH----------------------
+                mas= Mascota()
                 nm=int(input("Ingrese cantidad de medicamentos: "))
                 lista_med=[]
-
-                mas= Mascota()
+                for i in range(0, nm):
+                    medicamento = Medicamento()
+                    while True:  # Ciclo para repetir ingreso si el medicamento ya existe
+                        nombre_medicamentos = input("Ingrese el nombre del medicamento: ")
+                        dosis = int(input("Ingrese la dosis: "))
+                        medicamento.asignarNombre(nombre_medicamentos)
+                        medicamento.asignarDosis(dosis)
+                        if mas.comprobar_Medicamentos(medicamento,lista_med):
+                            lista_med.append(medicamento)
+                            break
+                        else:
+                            print("ingrese una preescripción diferente")
+                mas.asignarLista_Medicamentos(lista_med)
+                #----------------------------------------------------------------------------
                 mas.asignarNombre(nombre)
                 mas.asignarHistoria(historia)
                 mas.asignarPeso(peso)
                 mas.asignarTipo(tipo)
                 mas.asignarFecha(servicio_hospitalario.Fecha_deveris(fecha))
-
-                for i in range(0,nm):
-                    while True: #Ciclo con el objetivo de repetir el ingreso de med en caso de
-                                #que ya hubiera en la lista
-                        nombre_medicamentos = input("Ingrese el nombre del medicamento: ")
-                        dosis =int(input("Ingrese la dosis: "))
-                        medicamento = Medicamento()
-                        medicamento.asignarNombre(nombre_medicamentos)
-                        medicamento.asignarDosis(dosis)
-                        if mas.comprobar_Medicamentos(medicamento)==True:
-                            lista_med.append(medicamento)
-                        else:
-                            print("Ese medicamento ya fue añadido")
-                mas.asignarLista_Medicamentos(lista_med)
                 servicio_hospitalario.ingresarMascota(mas)
-
+                print("Mascota guardada")
             else:
-                print("Ya existe la mascota con el numero de histoira clinica")
+                    print("Ya existe la mascota con el numero de histoira clinica")
 
         elif menu==2: # Ver fecha de ingreso
             q = int(input("Ingrese la historia clínica de la mascota: "))
